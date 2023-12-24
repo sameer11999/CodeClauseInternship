@@ -1,0 +1,108 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class TextEditor extends JFrame {
+
+    private JTextArea textArea;
+    private JFileChooser fileChooser;
+
+    public TextEditor() {
+        setTitle("Simple Text Editor");
+        setSize(800, 600);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+        textArea = new JTextArea();
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        fileChooser = new JFileChooser();
+
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem openItem = new JMenuItem("Open");
+        JMenuItem saveItem = new JMenuItem("Save");
+        JMenuItem exitItem = new JMenuItem("Exit");
+
+        openItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                openFile();
+            }
+        });
+
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveFile();
+            }
+        });
+
+        exitItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
+        fileMenu.add(exitItem);
+
+        menuBar.add(fileMenu);
+
+        setJMenuBar(menuBar);
+
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+    private void openFile() {
+        int returnVal = fileChooser.showOpenDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileReader fileReader = new FileReader(fileChooser.getSelectedFile());
+                BufferedReader reader = new BufferedReader(fileReader);
+                String line;
+                StringBuilder content = new StringBuilder();
+
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+
+                textArea.setText(content.toString());
+
+                reader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void saveFile() {
+        int returnVal = fileChooser.showSaveDialog(this);
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            try {
+                FileWriter fileWriter = new FileWriter(fileChooser.getSelectedFile());
+                fileWriter.write(textArea.getText());
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new TextEditor().setVisible(true);
+            }
+        });
+    }
+}
